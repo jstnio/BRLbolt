@@ -1,0 +1,44 @@
+// Create the following indexes in Firebase Console:
+
+// Collection: oceanShipments
+// Fields to index:
+// - shipper.userId (Ascending)
+// - createdAt (Descending)
+
+// Collection: airShipments
+// Fields to index:
+// - shipper.userId (Ascending)
+// - createdAt (Descending)
+
+// Collection: truckShipments
+// Fields to index:
+// - shipper.userId (Ascending)
+// - createdAt (Descending)
+
+// Additional search indexes:
+// Collection: oceanShipments
+// - blNumber (Ascending)
+
+// Collection: airShipments
+// - awbNumber (Ascending)
+
+// Collection: truckShipments
+// - crtNumber (Ascending)
+
+// To create these indexes:
+// 1. Go to Firebase Console
+// 2. Select your project
+// 3. Go to Cloud Firestore
+// 4. Click on "Indexes" tab
+// 5. Click "Create Index"
+// 6. For each collection (oceanShipments, airShipments, and truckShipments):
+//    - Collection ID: [collection name]
+//    - Fields to index:
+//      * shipper.userId (Ascending)
+//      * createdAt (Descending)
+//    - Query scope: Collection
+// 7. Click "Create Index"
+// 8. For tracking number searches, create single-field indexes:
+//    - Collection: oceanShipments, Field: blNumber
+//    - Collection: airShipments, Field: awbNumber
+//    - Collection: truckShipments, Field: crtNumber

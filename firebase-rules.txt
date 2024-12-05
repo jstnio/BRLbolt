@@ -1,0 +1,116 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isManager() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'manager';
+    }
+    
+    function isCustomer() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'customer';
+    }
+
+    function isShipmentParty(data) {
+      return isAuthenticated() && (
+        data.shipper.userId == request.auth.uid ||
+        data.consignee.userId == request.auth.uid ||
+        isManager()
+      );
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if request.auth.uid == userId || isManager();
+    }
+    
+    match /oceanShipments/{shipmentId} {
+      allow read: if isAuthenticated() && (
+        isManager() || 
+        resource.data.shipper.userId == request.auth.uid ||
+        resource.data.blNumber == request.query.blNumber
+      );
+      allow create, update, delete: if isManager();
+      allow list: if isAuthenticated();
+    }
+    
+    match /airShipments/{shipmentId} {
+      allow read: if isAuthenticated() && (
+        isManager() || 
+        resource.data.shipper.userId == request.auth.uid ||
+        resource.data.awbNumber == request.query.awbNumber
+      );
+      allow create, update, delete: if isManager();
+      allow list: if isAuthenticated();
+    }
+
+    match /truckShipments/{shipmentId} {
+      allow read: if isAuthenticated() && (
+        isManager() || 
+        resource.data.shipper.userId == request.auth.uid ||
+        resource.data.crtNumber == request.query.crtNumber
+      );
+      allow create, update, delete: if isManager();
+      allow list: if isAuthenticated();
+    }
+
+    match /customers/{customerId} {
+      allow read, list: if isAuthenticated();
+      allow create, update, delete: if isManager();
+    }
+
+    match /shippingLines/{docId} {
+      allow read, list: if isAuthenticated();
+      allow create, update, delete: if isManager();
+    }
+
+    match /freightForwarders/{docId} {
+      allow read, list: if isAuthenticated();
+      allow create, update, delete: if isManager();
+    }
+
+    match /airports/{docId} {
+      allow read, list: if isAuthenticated();
+      allow create, update, delete: if isManager();
+    }
+
+    match /airlines/{docId} {
+      allow read, list: if isAuthenticated();
+      allow create, update, delete: if isManager();
+    }
+
+    match /ports/{docId} {
+      allow read, list: if isAuthenticated();
+      allow create, update, delete: if isManager();
+    }
+
+    match /terminals/{docId} {
+      allow read, list: if isAuthenticated();
+      allow create, update, delete: if isManager();
+    }
+
+    match /customsBrokers/{docId} {
+      allow read, list: if isAuthenticated();
+      allow create, update, delete: if isManager();
+    }
+
+    match /truckers/{docId} {
+      allow read, list: if isAuthenticated();
+      allow create, update, delete: if isManager();
+    }
+
+    match /quotes/{quoteId} {
+      allow read: if isAuthenticated() &&
+        (isManager() || 
+         request.auth.uid == resource.data.shipper.id ||
+         request.auth.uid == resource.data.consignee.id);
+      allow create, update, delete: if isManager();
+      allow list: if isAuthenticated();
+    }
+  }
+}
